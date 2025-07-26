@@ -1,0 +1,10 @@
+#!/bin/env node
+import { copyFileSync, readFileSync, writeFileSync } from 'fs';
+
+const data = JSON.parse(readFileSync('package.json', 'utf8'));
+delete data.scripts;
+delete data.devDependencies;
+delete data.private;
+writeFileSync('dist/package.json', JSON.stringify(data, null, 2));
+copyFileSync('README.md', 'dist/README.md');
+copyFileSync('LICENSE', 'dist/LICENSE');

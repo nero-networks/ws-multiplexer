@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="icon" type="image/vnd.microsoft.icon" href="https://git.io/blankfavicon16x16" />
+
+    <script type="module">
+        import { MultiplexSocket } from './client.js';
+
+        // Echo backend
+        const echoSocket = new MultiplexSocket('/echo');
+        const echoDiv = document.querySelector('div#echo');
+
+        echoSocket.onopen = () => {
+            console.log('echo opened');
+            echoSocket.send('hello from echo');
+        };
+
+        echoSocket.onmessage = (event) => {
+            console.log('echo message', event.data);
+            echoDiv.textContent = 'Echo: ' + event.data;
+        };
+
+        // Uppercase backend
+        const uppercaseSocket = new MultiplexSocket('/uppercase');
+        const uppercaseDiv = document.querySelector('div#uppercase');
+
+        uppercaseSocket.onopen = () => {
+            console.log('uppercase opened');
+            uppercaseSocket.send('hello from uppercase');
+        };
+
+        uppercaseSocket.onmessage = (event) => {
+            console.log('uppercase message', event.data);
+            uppercaseDiv.textContent = 'Uppercase: ' + event.data;
+        };
+
+        // 5 Buttons with 5 independent streams
+        // Each button will create a connection to its own backend which handles messages independently
+        const buttons = document.querySelector('div#buttons div');
+        const log = document.querySelector('div#buttons pre');
+        function button(i) {
+            const sock = new MultiplexSocket(`/button${i}`);
+            sock.onopen = () => console.log(`Socket ${i}: opened`);
+            sock.onmessage = (msg) => log.textContent += msg.data + '\n';
+            sock.onclose = () => console.log(`Socket ${i}: closed`);
+
+            sock.addEventListener('open', () => console.log(`Socket ${i}: open event`));
+            sock.addEventListener('message', (msg) => console.log(`Socket ${i}: message event ${msg.data}`));
+            sock.addEventListener('close', () => console.log(`Socket ${i}: close event`));
+
+            const button = document.createElement('button');
+            button.textContent = `send ${i}`;
+            button.onclick = () => sock.send(`Socket ${i}`);
+            buttons.appendChild(button);
+        }
+
+        for (let i = 1; i <= 5; i++) { button(i); }
+    </script>
+</head>
+
+<body>
+    <h1>Multiplexer Demo</h1>
+    This is a demo of the Multiplexer WebSocket server.<br>
+    A Backend can be:
+    <ul>
+        <li>Any function that accepts a WebSocket</li>
+        <li>any third party WebSocketServer</li>
+        <li>an EventEmitter (or any other object that implements emit)
+            with a listener for the 'connection' event which accepts a WebSocket</li>
+    </ul>
+    Open the network tab of the developer tools (F12).
+    You will find only one websocket connection tunneling all 7 websockets.
+
+    <br><br>
+
+    <div id="echo"></div>
+    <div id="uppercase"></div>
+    <div id="buttons">
+        <div></div>
+        <pre></pre>
+    </div>
+</body>
+
+</html>

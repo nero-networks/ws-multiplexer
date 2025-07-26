@@ -1,0 +1,31 @@
+{
+  "name": "ws-multiplexer",
+  "version": "0.0.1",
+  "author": {
+    "name": "Roman De Meo",
+    "email": "npm@nero-networks.de"
+  },
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf ./dist ./node_modules",
+    "predemo": "test -e dist || npm run build",
+    "demo": "cd demo; node server.js",
+    "predev": "test -e node_modules || npm i",
+    "dev": "tsc --watch",
+    "prebuild": "test -e node_modules || npm i",
+    "build": "rm -rf ./dist && tsc && node bin/prepare-dist",
+    "prepublish": "npm run build",
+    "publish": "cd dist && npm publish"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.8.3"
+  }
+}
